@@ -69,6 +69,9 @@ int ImportFrontendModelArray(const void *onnxBuffer, int bufferSize,
     mlir::MLIRContext &context, mlir::OwningOpRef<mlir::ModuleOp> &module,
     std::string *errorMessage, ImportOptions options = ImportOptions());
 
+bool ImportFrontendModelInternal(onnx::ModelProto &model, mlir::MLIRContext &context,
+    mlir::OwningOpRef<mlir::ModuleOp> &module, ImportOptions options);
+
 /*!
  *  Import an ONNX model file into the ONNX Dialect.
  *  @param model_fname file name pointing to the onnx model protobuf.

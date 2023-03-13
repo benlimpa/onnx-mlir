@@ -676,6 +676,24 @@ int processInputArray(const void *onnxBuffer, int bufferSize,
       onnxBuffer, bufferSize, context, module, errorMessage, options);
 }
 
+// Return 0 on success, error code on error.
+int processInputMsg(onnx::ModelProto &model,
+    mlir::MLIRContext &context, mlir::OwningOpRef<ModuleOp> &module,
+    std::string *errorMessage) {
+  ImportOptions options;
+  options.useOnnxModelTypes = useOnnxModelTypes;
+  options.invokeOnnxVersionConverter = invokeOnnxVersionConverter;
+  options.allowSorting = allowSorting;
+  options.shapeInformation = shapeInformation;
+
+  if (onnx_mlir::ImportFrontendModelInternal(model, context, module, options)) {
+    return CompilerSuccess;
+  } else {
+    return CompilerFailure;
+  }
+}
+
+
 static void outputModule(mlir::OwningOpRef<ModuleOp> &module, raw_ostream &os,
     int64_t largeElementLimit = -1) {
   mlir::OpPrintingFlags flags;

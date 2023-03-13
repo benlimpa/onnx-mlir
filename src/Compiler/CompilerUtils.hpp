@@ -84,6 +84,9 @@ int processInputFile(llvm::StringRef inputFilename, mlir::MLIRContext &context,
 int processInputArray(const void *onnxBuffer, int bufferSize,
     mlir::MLIRContext &context, mlir::OwningOpRef<mlir::ModuleOp> &module,
     std::string *errorMessage);
+int processInputMsg(onnx::ModelProto &model,
+    mlir::MLIRContext &context, mlir::OwningOpRef<mlir::ModuleOp> &module,
+    std::string *errorMessage);
 
 onnx_mlir::InputIRLevelType determineInputIRLevel(
     mlir::OwningOpRef<mlir::ModuleOp> &module);
