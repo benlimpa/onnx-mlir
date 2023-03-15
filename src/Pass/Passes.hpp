@@ -43,6 +43,8 @@ std::unique_ptr<mlir::Pass> createDecomposeONNXToONNXPass(
 std::unique_ptr<mlir::Pass> createConvOptONNXToONNXPass(
     bool enableSimdDataLayoutOpt = false);
 
+std::unique_ptr<mlir::Pass> createRandomMutatePass();
+
 std::unique_ptr<mlir::Pass> createToyPass();
 
 std::unique_ptr<mlir::Pass> createShapeInferencePass(
