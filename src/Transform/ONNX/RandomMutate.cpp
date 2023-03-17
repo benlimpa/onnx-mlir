@@ -13,7 +13,6 @@
 #include "src/Dialect/ONNX/ONNXOps.hpp"
 #include "src/Dialect/ONNX/ONNXOps/OpHelper.hpp"
 #include "src/Pass/Passes.hpp"
-#include "src/Transform/ONNX/ConvOpt.h"
 #include "src/Transform/ONNX/ToyMutators.h"
 #include "llvm/ADT/ArrayRef.h"
 
