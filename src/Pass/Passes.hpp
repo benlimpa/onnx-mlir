@@ -45,6 +45,8 @@ std::unique_ptr<mlir::Pass> createConvOptONNXToONNXPass(
 
 std::unique_ptr<mlir::Pass> createRandomMutatePass();
 
+std::unique_ptr<mlir::Pass> createWalkerMutatePass();
+
 std::unique_ptr<mlir::Pass> createToyPass();
 
 std::unique_ptr<mlir::Pass> createShapeInferencePass(

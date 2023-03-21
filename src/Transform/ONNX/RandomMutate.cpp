@@ -1,4 +1,5 @@
 #include <random>
+#include <optional>
 
 #include "mlir/Dialect/Func/IR/FuncOps.h"
 #include "mlir/IR/Builders.h"
@@ -6,6 +7,7 @@
 #include "mlir/IR/MLIRContext.h"
 #include "mlir/IR/PatternMatch.h"
 #include "mlir/Pass/Pass.h"
+#include "mlir/Rewrite/FrozenRewritePatternSet.h"
 #include "mlir/Rewrite/PatternApplicator.h"
 #include "mlir/Support/LLVM.h"
 #include "mlir/Support/LogicalResult.h"
@@ -51,18 +53,21 @@ void RandomMutatePass::runOnOperation() {
     signalPassFailure();
 }
 
-const RewritePattern *choosePattern(
+std::optional<const RewritePattern *> choosePattern(
     llvm::SmallVector<const RewritePattern *> patterns) {
-  return patterns[0];
+  if (patterns.size() < 1) {
+    return std::nullopt;
+  }
+  else {
+    return patterns[0];
+  }
 }
 
 class MutationPatternRewriteDriver : public PatternRewriter {
 public:
   explicit MutationPatternRewriteDriver(
       MLIRContext *ctx, const FrozenRewritePatternSet &patterns, Operation *op)
-      : PatternRewriter(ctx), patterns(patterns), matcher(patterns), op(op),
-        context(ctx) {}
-
+      : PatternRewriter(ctx), patterns(patterns), matcher(patterns), op(op) {}
   LogicalResult mutate() {
     op->walk([&](mlir::Operation *op) {
       // get the set of available mutators for this operation
@@ -82,26 +87,39 @@ public:
         }
       }
       auto pattern = choosePattern(matchedPatterns);
-      pattern->rewrite(op, *this);
+      if (pattern.has_value()) {
+        this->setInsertionPoint(op);
+        pattern.value()->rewrite(op, *this);
+      }
     });
+    return success();
   }
 
 private:
   const FrozenRewritePatternSet &patterns;
   PatternApplicator matcher;
   Operation *op;
-  MLIRContext *context;
 };
 struct WalkerMutatePass
     : public PassWrapper<WalkerMutatePass, OperationPass<func::FuncOp>> {
   MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(WalkerMutatePass)
+  ::llvm::StringRef getArgument() const override { return "mutate-walker"; }
+
+  ::llvm::StringRef getDescription() const override {
+    return "Walker mutator";
+  }
+
   void runOnOperation() override {
     MLIRContext *context = &getContext();
     RewritePatternSet patterns(context);
     patterns.add<toy_mutators::TriggerAddToMulPattern>(context);
 
+    FrozenRewritePatternSet frozenPatterns(std::move(patterns));
     MutationPatternRewriteDriver driver(
-        context, std::move(patterns), getOperation());
+        context, frozenPatterns, getOperation());
+    if (failed(driver.mutate())) {
+      getOperation()->emitWarning() << "Failed to mutate.";
+    }
   }
 };
 } // namespace

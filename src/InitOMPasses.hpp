@@ -42,6 +42,10 @@ void initOMPasses(int optLevel) {
   });
 
   mlir::registerPass([]() -> std::unique_ptr<mlir::Pass> {
+    return createWalkerMutatePass();
+  });
+
+  mlir::registerPass([]() -> std::unique_ptr<mlir::Pass> {
     return createToyPass();
   });
 
