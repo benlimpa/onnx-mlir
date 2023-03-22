@@ -5,15 +5,14 @@ set -e
 SCRIPT_DIR=$(dirname "${BASH_SOURCE}")
 
 # MLIR_DIR must be set with cmake option now
-MLIR_DIR=$SCRIPT_DIR/llvm-project/build/lib/cmake/mlir
+MLIR_DIR="$SCRIPT_DIR/llvm-project/build/lib/cmake/mlir"
 
-#pythonLocation=/home/blimpan/mambaforge/envs/onnx
-
-cd $SCRIPT_DIR/build
+cd "$SCRIPT_DIR"
+mkdir build || true
+cd build
 
 if [[ $1 == "configure" ]]
 then
-#            -DPython3_ROOT_DIR=$pythonLocation \
     cmake -G Ninja \
             -DMLIR_DIR=${MLIR_DIR} \
             -DCMAKE_C_COMPILER=clang \
