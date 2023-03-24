@@ -33,6 +33,25 @@ struct AddToMulPattern : public OpRewritePattern<ONNXAddOp> {
   }
 };
 
+
+struct DivToMulPattern : public OpRewritePattern<ONNXDivOp> {
+  using OpRewritePattern<ONNXDivOp>::OpRewritePattern;
+
+  LogicalResult match(ONNXDivOp op) const override {
+    if (op.getOperand(0).getType().dyn_cast<TensorType>().getElementType().isa<FloatType>()) {
+      if (op.getOperand(0).getType().dyn_cast<TensorType>().getElementType().isa<FloatType>()) {
+        return success();
+      }
+    }
+    return failure();
+  }
+
+  void rewrite(ONNXDivOp op, PatternRewriter &rewriter) const override {
+    rewriter.replaceOpWithNewOp<ONNXMulOp>(
+        op, op.getOperand(0), op.getOperand(1));
+  }
+};
+
 struct ToyPass : public PassWrapper<ToyPass, OperationPass<>> {
   MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ToyPass)
   ::llvm::StringRef getArgument() const override { return "toy-pass"; }
@@ -48,6 +67,7 @@ void ToyPass::runOnOperation() {
 
   RewritePatternSet patterns(&getContext());
   patterns.add<AddToMulPattern>(&getContext());
+  patterns.add<DivToMulPattern>(&getContext());
 
   if (failed(applyPatternsAndFoldGreedily(getOperation(), std::move(patterns))))
     signalPassFailure();
