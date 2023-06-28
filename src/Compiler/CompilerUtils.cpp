@@ -642,11 +642,12 @@ int processInputFile(StringRef inputFilename, mlir::MLIRContext &context,
   bool inputIsONNX = inputFilename.endswith(".onnx");
   bool inputIsJSON = inputFilename.endswith(".json");
   bool inputIsMLIR = inputFilename.endswith(".mlir");
+  bool inputIsStdin = inputFilename.equals("-");
 
-  if (!inputIsONNX && !inputIsJSON && !inputIsMLIR) {
+  if (!inputIsONNX && !inputIsJSON && !inputIsMLIR && !inputIsStdin) {
     *errorMessage = "Invalid input file '" + inputFilename.str() +
-                    "': Either an ONNX model (.onnx or .json or '-'), or an "
-                    "MLIR file (.mlir) "
+                    "': Either an ONNX model (.onnx or .json), or an "
+                    "MLIR file (.mlir or '-') "
                     "needs to be provided.";
     return InvalidInputFile;
   }
@@ -660,7 +661,7 @@ int processInputFile(StringRef inputFilename, mlir::MLIRContext &context,
     options.externalDataDir = dirName(inputFilename);
     return ImportFrontendModelFile(
         inputFilename, context, module, errorMessage, options);
-  } else if (inputIsMLIR)
+  } else if (inputIsMLIR || inputIsStdin)  // assume STDIN is MLIR
     loadMLIR(inputFilename.str(), context, module);
   return CompilerSuccess;
 }

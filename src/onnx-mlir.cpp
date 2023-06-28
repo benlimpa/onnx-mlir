@@ -94,7 +94,10 @@ int main(int argc, char *argv[]) {
     if (b)
       llvm::errs() << "Invalid -o option value " << outputBaseName
                    << " ignored.\n";
-    outputBaseName = inputFilename.substr(0, inputFilename.find_last_of("."));
+    if (inputFilename == "-")
+        outputBaseName = "stdin";
+    else
+        outputBaseName = inputFilename.substr(0, inputFilename.find_last_of("."));
   }
 
   return compileModule(module, context, outputBaseName, emissionTarget);
