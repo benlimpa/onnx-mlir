@@ -12,4 +12,13 @@ struct TriggerAddToMulPattern : public mlir::RewritePattern {
   void rewrite(
       mlir::Operation *op, mlir::PatternRewriter &rewriter) const override;
 };
+
+struct DivToMulPattern : public mlir::RewritePattern {
+  DivToMulPattern(mlir::MLIRContext *context)
+      : RewritePattern(MatchAnyOpTypeTag(), 1, context) {}
+  
+  mlir::LogicalResult match(mlir::Operation *op) const override;
+  void rewrite(
+      mlir::Operation *op, mlir::PatternRewriter &rewriter) const override;
+};
 } // namespace toy_mutators
